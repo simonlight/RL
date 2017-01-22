@@ -10,17 +10,18 @@ from keras.layers import Dense, Activation
 from keras.optimizers import SGD
 
 model = Sequential([
-    Dense(2, input_dim=4, init='uniform'),
+    Dense(8, input_dim=4, init='uniform'),
+    Dense(1, init='uniform'),
 ])
 
-sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+sgd = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(optimizer=sgd,
               loss='mse',
               )
 
 def learn(data, labels, model):
     
-    model.fit(data, labels, nb_epoch=1, batch_size=1)
+    model.fit(data, labels, nb_epoch=1, batch_size=1,verbose=False,)
     return model
     
 
@@ -28,20 +29,23 @@ for i_episode in range(100):
     observation = env.reset()
     observation = np.asarray(observation)
     observation = np.reshape(observation,[1,4])
-    for t in range(100):
+    data=[]
+    for t in range(1000):
         env.render()
-
-        allQ = model.predict(observation)
-        action = np.argmax(allQ)
+        a = model.predict(observation)
+        action = np.argmax(a)
         observation, reward, done, info = env.step(action)
+        data.append(observation)
         observation = np.asarray(observation)
         observation = np.reshape(observation,[1,4])
-        nextQ = model.predict(observation)
-        maxNextQ = np.max(nextQ)
-        targetQ = allQ
-        targetQ[0,action] = reward + 0.8*maxNextQ
-        model = learn(observation, targetQ, model)
         if done:
+            if len(data)>=9+i_episode:
+                labels=np.ones((len(data),1))
+            else:
+                labels=np.zeros((len(data),1))
+            print np.shape(data)
+            print np.shape(labels)
+            model = learn(data, labels, model)
             print("Episode finished after {} timesteps".format(t+1))
             break
 

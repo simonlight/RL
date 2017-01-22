@@ -42,8 +42,9 @@ with tf.Session() as sess:
             j+=1
             #Choose an action by greedily (with e chance of random action) from the Q-network
             a,allQ = sess.run([predict,Qout],feed_dict={inputs1:np.identity(16)[s:s+1]})
-#             if np.random.rand(1) < e:
-#                 a[0] = env.action_space.sample()
+            print allQ, a
+            if np.random.rand(1) < e:
+                a[0] = env.action_space.sample()
             #Get new state and reward from environment
             s1,r,d,_ = env.step(a[0])
             #Obtain the Q' values by feeding the new state through our network
@@ -56,10 +57,10 @@ with tf.Session() as sess:
             _,W1 = sess.run([updateModel,W],feed_dict={inputs1:np.identity(16)[s:s+1],nextQ:targetQ})
             rAll += r
             s = s1
-#             if d == True:
-                #Reduce chance of random action as we train the model.
-#                 e = 1./((i/50) + 10)
-#                 break
+            if d == True:
+#                Reduce chance of random action as we train the model.
+                e = 1./((i/50) + 10)
+                break
         jList.append(j)
         rList.append(rAll)
 print "Percent of succesful episodes: " + str(sum(rList)/num_episodes) + "%"

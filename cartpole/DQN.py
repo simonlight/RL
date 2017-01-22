@@ -11,6 +11,7 @@ tf.reset_default_graph()
 inputs1 = tf.placeholder(shape=[1,4],dtype=tf.float32)
 W = tf.Variable(tf.random_uniform([4,2],0,0.001))
 Qout = tf.matmul(inputs1,W)
+
 predict = tf.argmax(Qout,1)
 
 #Below we obtain the loss by taking the sum of squares difference between the target and prediction Q values.
